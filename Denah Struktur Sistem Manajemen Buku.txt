@@ -1,0 +1,18 @@
+Nama-Projek/
+├── app/
+│   ├── api/
+|   |   └── authy.py         # Endpoint API untuk authy
+│   ├── core/
+│   │   └── security.py        # Pengaturan aplikasi
+│   ├── db/
+│   │   └── session.py       # Koneksi & Session database 
+│   ├── models/
+│   │   └── user.py          # Definisi Tabel (SQLModel) 
+│   ├── schemas/ 
+│   │   └── user.py          # Validasi data (Pydantic) 
+│   ├── services/ 
+|   |   └── user_service.py  # Logika bisnis (CRUD)
+│   └── main.py              # Entry point aplikasi 
+├── .env                     # Variabel database
+├── requirements.txt         # dependensi python yang dibutuhkan
+└── venv                     # lingkungan pengembangan yang terisolasi
