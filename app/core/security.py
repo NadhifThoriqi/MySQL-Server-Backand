@@ -5,7 +5,7 @@ from decouple import config
 from fastapi import Depends, HTTPException, status
 from sqlmodel import Session
 from db.session import get_session, oauth2_scheme
-from models.user import User
+from models.user import owner
 
 # Konfigurasi dari .env 
 SECRET_KEY = config("SECRET_KEY", default="kode-rahasia-perpustakaan")
@@ -48,13 +48,13 @@ def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Dep
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = session.get(User, int(user_id))
+    user = session.get(owner, int(user_id))
     if user is None:
         raise credentials_exception
     return user
 
 # Validasi apakah user adalah admin
-def validate_admin(current_user: User = Depends(get_current_user)):
+def validate_admin(current_user: owner = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 

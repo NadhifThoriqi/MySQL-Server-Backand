@@ -1,0 +1,12 @@
+Replika-Xampp/
+├── app/
+│   ├── api/                # Endpoint API
+│   ├── core/               # Pengaturan aplikasi
+│   ├── db/                 # Koneksi & Session database 
+│   ├── models/             # Definisi Tabel (SQLModel) 
+│   ├── schemas/            # Validasi data (Pydantic) 
+│   ├── services/           # Logika bisnis (CRUD)
+│   └── main.py             # Entry point aplikasi 
+├── .env                    # Variabel database
+├── requirements.txt        # dependensi python yang dibutuhkan
+└── venv                    # lingkungan pengembangan yang terisolasi

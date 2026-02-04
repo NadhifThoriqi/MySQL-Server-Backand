@@ -3,16 +3,16 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn, time
 
-from api import authy # Import router dari modul api
-from db.session import create_db_and_tables
+from api import showDB, showTBL # Import router dari modul api
+from db.session import create_db_and_tables, run_engine
 from logger import setup_exception_handlers, logger
 
 # Buat tabel saat aplikasi jalan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Aplikasi sedang berjalan, membuat tabel...") # --- Kode di sini dijalankan saat STARTUP ---
-    create_db_and_tables()
-    
+    print("Aplikasi sedang berjalan...") # --- Kode di sini dijalankan saat STARTUP ---
+    create_db_and_tables(run_engine("db_manajemen_buku"))
+
     yield # Jeda di sini: Aplikasi berjalan melayani request...
 
     print("Aplikasi sedang dimatikan...") # --- Kode di sini dijalankan saat SHUTDOWN ---
@@ -38,8 +38,10 @@ async def add_process_time_header(request: Request, call_next):
     return await call_next(request)
 
 # API Router
-app.include_router(authy.router, prefix="/api/auth", tags=["Authentication"])
+# app.include_router(authy.router, prefix="/api/mysql", tags=["MySQL"])
+app.include_router(showDB.router, prefix="/api/mysql", tags=["Database"])
+app.include_router(showTBL.router, prefix="/api/mysql/databases", tags=["Table"])
 
 # 3. Run FastAPI app
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=5000, reload=True) # gunakan localhost:2600/docs untuk mengecek api yang ada
+    uvicorn.run("main:app", host="127.0.0.1", port=2006, reload=True) # gunakan localhost:2600/docs untuk mengecek api yang ada

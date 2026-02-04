@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
-from models.user import User
-from schemas.user import UserCreate, UserUpdate, AdminUpdateUsers
+from models.user import owner
+from schemas.user import UserCreate, UserUpdate
 from core.security import hash_password, verify_password
 
 # memasukkan data ke database
@@ -17,7 +17,7 @@ def saveData(session: Session, dataIn: any):
 def create_user(session: Session, user_in: UserCreate):
     hashed = hash_password(user_in.password)
     
-    db_user = User(
+    db_user = owner(
         username=user_in.username,
         email=user_in.email,
         hashed_password=hashed,
@@ -28,13 +28,13 @@ def create_user(session: Session, user_in: UserCreate):
 # Mengambil semua user
 def get_admin_all_users(session: Session, type_role: str):
     if type_role.role == "admin":
-        return session.exec(select(User)).all()
+        return session.exec(select(owner)).all()
 
 # Mengambil data berdasarkan email
 def get_user_by_email(session: Session, email: str):
-    return session.exec(select(User).where(User.email == email)).first()
+    return session.exec(select(owner).where(owner.email == email)).first()
 
-def update_user(session: Session, db_user: User, data_in: UserUpdate):
+def update_user(session: Session, db_user: owner, data_in: UserUpdate):
     # Ambil data kiriman (exclude_unset agar yang None tidak nimpa)
     update_data = data_in.model_dump(exclude_unset=True)
 
@@ -55,22 +55,22 @@ def authenticate(session: Session, email: str, password: str):
         return None
     return user
 
-def update_user_by_admin(session: Session, db_user: User, data_in: AdminUpdateUsers):
-    # Konversi schema ke dict, abaikan field yang tidak diisi (None)
-    update_data = data_in.model_dump(exclude_unset=True)
+# def update_user_by_admin(session: Session, db_user: owner, data_in: AdminUpdateUsers):
+#     # Konversi schema ke dict, abaikan field yang tidak diisi (None)
+#     update_data = data_in.model_dump(exclude_unset=True)
 
-    # Jika admin mengubah password user tersebut
-    if "password" in update_data:
-        password_polos = update_data.pop("password")
-        db_user.hashed_password = hash_password(password_polos)
+#     # Jika admin mengubah password user tersebut
+#     if "password" in update_data:
+#         password_polos = update_data.pop("password")
+#         db_user.hashed_password = hash_password(password_polos)
 
-    # Update sisa field (username, email, role, is_active, dll)
-    db_user.sqlmodel_update(update_data)
+#     # Update sisa field (username, email, role, is_active, dll)
+#     db_user.sqlmodel_update(update_data)
 
-    return saveData(session, db_user)
+#     return saveData(session, db_user)
 
 # Menghapus data berdasarkan ID
-def delete_user(session: Session, db_user: User):
+def delete_user(session: Session, db_user: owner):
     session.delete(db_user)
     session.commit()
     return db_user
