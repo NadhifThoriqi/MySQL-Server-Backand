@@ -5,7 +5,7 @@ from db import session as S
 from sqlalchemy_utils import database_exists
 from sqlalchemy import inspect
 from typing import Dict, Optional, List, Any
-import importlib
+import importlib, subprocess
 
 # Tables
 def import_dinamis(use_db, table_name):
@@ -38,7 +38,10 @@ def show_tables(
     inspector = inspect(engine)
     tables = inspector.get_table_names()
     
-    return tables
+    data_tbl = []    
+    for row in tables:
+            data_tbl.append(row)
+    return data_tbl
 
 def create_table(
         use_db: str, 
@@ -104,12 +107,19 @@ def show_columns(
     kita pastikan table_name bersih atau menggunakan f-string dengan hati-hati. 
     """
     query = text(f"SHOW FULL COLUMNS FROM `{table_name}`")
-    result = use_database.exec(query)
+    # query = text(f"SELECT @@collation_database")
+    # query = text(
+    #     f"SELECT COLUMN_NAME, COLLATION_NAME "
+    #     f"FROM INFORMATION_SCHEMA.COLUMNS "
+    #     f"WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{table_name}'")
+    result = use_database.exec(query).all()
     d = []
     for row in result:
         # Row biasanya berisi (Field, Type, Null, Key, Default, Extra)
         d.append(
             {
+            # {f"Database Collation: {result[0]}"
+            # {f"Column: {row[0]}, Collation: {row[1]}"
                 "Nama": row[0],          # Field
                 "Jenis": row[1],         # Type
                 "Null": row[3],          # Null (Bisa kosong atau tidak)
@@ -214,6 +224,15 @@ def update(
     use_db.commit()
     use_db.refresh(db_row)
     return data_in
+
+def export_db(username, password, database, output):
+    command = f"mysqldump -u {username} -p'{password}' {database} > {output}.sql"
+    subprocess.run(command, shell=True)
+
+def import_db(username, password, database, output):
+    command = f"mysql -u {username} -p'{password}' {database} < {output}.sql"
+    subprocess.run(command, shell=True)
+
 
 def delete_table(
         use_database: Session, 

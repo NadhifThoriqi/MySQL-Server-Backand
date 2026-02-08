@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn, time
 
-from api import showDB, showTBL # Import router dari modul api
+from api import showDB, showTBL, showAll # Import router dari modul api
 from db.session import create_db_and_tables, run_engine
 from logger import setup_exception_handlers, logger
 
@@ -38,6 +38,7 @@ async def add_process_time_header(request: Request, call_next):
     return await call_next(request)
 
 # API Router
+app.include_router(showAll.router, prefix="/api/mysql", tags=["All"])
 # app.include_router(authy.router, prefix="/api/mysql", tags=["MySQL"])
 app.include_router(showDB.router, prefix="/api/mysql", tags=["Database"])
 app.include_router(showTBL.router, prefix="/api/mysql/databases", tags=["Table"])

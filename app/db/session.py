@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Path
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Engine
 from sqlmodel import create_engine, Session, SQLModel
@@ -11,11 +11,11 @@ import re
 # PENTING: Import semua model di sini agar terdaftar di metadata
 # from models.user import User, Book  <-- Contoh
 
-DEFAULT_DB_URL = "mysql+pymysql://root@localhost/"
+DEFAULT_DB_URL = "mysql+pymysql://nadhif:thoriqi@localhost/"
 
-def validasi_karakter(teks: str):
+def validasi_karakter(table_name = Path(..., description="Masukkan nama karakter")):
     # 1. Normalisasi
-    teks = teks.replace(" ", "_").lower()
+    teks = table_name.replace(" ", "_").lower()
 
     # 2. Validasi Karakter (Hanya mengizinkan huruf, angka, dan underscore)
     if not re.match(r"^[a-z0-9_]+$", teks):
@@ -35,7 +35,7 @@ def create_db_and_tables(engine: str):
     # Digunakan untuk inisialisasi awal database utama
     return SQLModel.metadata.create_all(engine)
 
-def get_session(use_database):
+def get_session(use_database = Path(..., description="Masukkan nama database")):
     # Logika run_engine Anda di sini
     # FastAPI otomatis mengambil 'use_database' dari path URL
     engine = run_engine(use_database)

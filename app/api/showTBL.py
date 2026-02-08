@@ -9,7 +9,7 @@ router = APIRouter()
 # Tables
 @router.get("/{use_database}/show-tables")
 def show_tables(
-    use_database: str = Depends(validasi_karakter)
+    use_database: str = Path(..., description="Nama database yang ingin dilihat tabelnya")
 ):
     return mysql_TBL_service.show_tables(use_database)
 
@@ -46,14 +46,26 @@ def insert_into(
 
 @router.get("/{use_database}/selec-from/{table_name}")
 def selec_from(
-    selec: Optional[str],
-    where: Optional[Any],
+    # selec: Optional[str | None] = None,
+    # where: Optional[Any | None] = None,
     use_database: Session = Depends(get_session),
     table_name: str = Depends(validasi_karakter)
 ):
-    if not selec and not where:
+    # if not selec and not where:
         return mysql_TBL_service.select_table(use_database, table_name)
-    else:
+    # else:
+    #     return mysql_TBL_service.select_where(use_database, selec, table_name, where)
+
+@router.post("/{use_database}/selec-from/{table_name}")
+def selec_from(
+    selec: str,
+    where: Any,
+    use_database: Session = Depends(get_session),
+    table_name: str = Depends(validasi_karakter)
+):
+    # if not selec and not where:
+    #     return mysql_TBL_service.select_table(use_database, table_name)
+    # else:
         return mysql_TBL_service.select_where(use_database, selec, table_name, where)
 
 @router.post("/{use_database}/update/{table_name}")
